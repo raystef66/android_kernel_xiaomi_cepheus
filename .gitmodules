@@ -3,4 +3,4 @@
     url = https://github.com/raystef66/KernelSU.git
 [submodule "AnyKernel3"]
     path = AnyKernel3
-    url = https://github.com/Kernel-SU/AnyKernel3.git
+    url = https://github.com/osm0sis/AnyKernel3.git
