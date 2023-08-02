@@ -3,13 +3,19 @@
 #set -e
 
 KERNEL_DEFCONFIG=cepheus_defconfig
-ANYKERNEL3_DIR=$PWD/AnyKernel3/
+ANYKERNEL3_DIR=$PWD/AnyKernel3
 FINAL_KERNEL_ZIP=InfiniR_cepheus_A13_v1.7.zip
+export TC=$PWD/prelude-clang
+
+echo "===================Setup Environment==================="
+git clone https://gitlab.com/jjpprrrr/prelude-clang.git $TC
+git clone https://github.com/osm0sis/AnyKernel3 $ANYKERNEL3_DIR
+##git clone https://github.com/Kernel-SU/AnyKernel3 $ANYKERNEL3_DIR
 
 # paths
-TC="/home/raystef66/kernel/prebuilts"
+#TC="/home/raystef66/kernel/prebuilts"
 
-PATH=${TC}/clang-r416183b1/bin:${TC}/aarch64/bin:${TC}/arm/bin:$PATH
+PATH=${TC}/bin:${TC}/aarch64-linux-gnu/bin:$PATH
 
 export LLVM=1
 export CC=clang
@@ -25,16 +31,15 @@ make O=out ARCH=arm64 cepheus_defconfig
 START=$(date +"%s")
 
 make ARCH=arm64 \
-        O=out \
-        CC=clang \
-		AR=llvm-ar \
-        LD=ld.lld \
-        NM=llvm-nm \
-        OBJCOPY=llvm-objcopy \
-        OBJDUMP=llvm-objdump \
-        STRIP=llvm-strip \
-        -j$(nproc --all)
-               
+    O=out \
+    CC=clang \
+    AR=llvm-ar \
+    LD=ld.lld \
+    NM=llvm-nm \
+    OBJCOPY=llvm-objcopy \
+    OBJDUMP=llvm-objdump \
+    STRIP=llvm-strip \
+    -j$(nproc --all)
 
 echo -e "$yellow**** Verify Image.gz-dtb ****$nocol"
 ls $PWD/out/arch/arm64/boot/Image.gz-dtb
