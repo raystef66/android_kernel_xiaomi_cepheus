@@ -1721,10 +1721,9 @@ static int exec_binprm(struct linux_binprm *bprm)
 	return ret;
 }
 
-// KernelSU hook
 #ifdef CONFIG_KSU
 extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
-			       void *envp, int *flags);
+			                   void *envp, int *flags);
 #endif
 
 /*
@@ -1744,7 +1743,7 @@ static int do_execveat_common(int fd, struct filename *filename,
 	int retval;
 
 #ifdef CONFIG_KSU
-        ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);  // call KSU hook first
+	ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);
 #endif
 
 	if (IS_ERR(filename))
