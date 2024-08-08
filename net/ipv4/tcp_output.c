@@ -3124,12 +3124,8 @@ coalesce:
 			return;
 		}
 	} else {
-		skb = alloc_skb_fclone(MAX_TCP_HEADER,
-				       sk_gfp_mask(sk, GFP_ATOMIC |
-						       __GFP_NOWARN));
-		if (unlikely(!skb)) {
-			if (tskb)
-				goto coalesce;
+		skb = alloc_skb_fclone(MAX_TCP_HEADER, sk->sk_allocation);
+		if (unlikely(!skb))
 			return;
 		}
 		skb_reserve(skb, MAX_TCP_HEADER);
