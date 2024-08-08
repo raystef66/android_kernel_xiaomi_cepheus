@@ -3125,7 +3125,9 @@ coalesce:
 		}
 	} else {
 		skb = alloc_skb_fclone(MAX_TCP_HEADER, sk->sk_allocation);
-		if (unlikely(!skb))
+		if (unlikely(!skb)) {
+			if (tskb)
+				goto coalesce;
 			return;
 		}
 		skb_reserve(skb, MAX_TCP_HEADER);
