@@ -3126,7 +3126,9 @@ void tcp_send_fin(struct sock *sk)
 		skb = alloc_skb_fclone(MAX_TCP_HEADER,
 				       sk_gfp_mask(sk, GFP_ATOMIC |
 						       __GFP_NOWARN));
-		if (unlikely(!skb))
+		if (unlikely(!skb)) {
+			if (tskb)
+				goto coalesce;
 			return;
 
 		skb_reserve(skb, MAX_TCP_HEADER);
