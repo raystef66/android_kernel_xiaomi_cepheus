@@ -4,7 +4,7 @@
 
 KERNEL_DEFCONFIG=cepheus_defconfig
 ANYKERNEL3_DIR=$PWD/AnyKernel3/
-FINAL_KERNEL_ZIP=InfiniR_cepheus_v1.34.zip
+FINAL_KERNEL_ZIP=InfiniR_cepheus_v1.35.zip
 
 # paths
 TC="/home/raystef66/kernel/prebuilts"
