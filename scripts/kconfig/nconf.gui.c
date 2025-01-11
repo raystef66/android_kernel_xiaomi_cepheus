@@ -546,17 +546,10 @@ void refresh_all_windows(WINDOW *main_window)
 	refresh();
 }
 
+/* layman's scrollable window... */
 void show_scroll_win(WINDOW *main_window,
 		const char *title,
 		const char *text)
-{
-	(void)show_scroll_win_ext(main_window, title, (char *)text, NULL, NULL, NULL, NULL);
-}
-
-/* layman's scrollable window... */
-int show_scroll_win_ext(WINDOW *main_window, const char *title, char *text,
-			int *vscroll, int *hscroll,
-			extra_key_cb_fn extra_key_cb, void *data)
 {
 	int res;
 	int total_lines = get_line_no(text);
@@ -570,12 +563,6 @@ int show_scroll_win_ext(WINDOW *main_window, const char *title, char *text,
 	WINDOW *win;
 	WINDOW *pad;
 	PANEL *panel;
-	bool done = false;
-
-	if (hscroll)
-		start_x = *hscroll;
-	if (vscroll)
-		start_y = *vscroll;
 
 	getmaxyx(stdscr, lines, columns);
 
@@ -611,7 +598,8 @@ int show_scroll_win_ext(WINDOW *main_window, const char *title, char *text,
 	panel = new_panel(win);
 
 	/* handle scrolling */
-	while (!done) {
+	do {
+
 		copywin(pad, win, start_y, start_x, 2, 2, text_lines,
 				text_cols, 0);
 		print_in_middle(win,
@@ -655,18 +643,8 @@ int show_scroll_win_ext(WINDOW *main_window, const char *title, char *text,
 		case 'l':
 			start_x++;
 			break;
-		default:
-			if (extra_key_cb) {
-				size_t start = (get_line(text, start_y) - text);
-				size_t end = (get_line(text, start_y + text_lines) - text);
-
-				if (extra_key_cb(res, start, end, data)) {
-					done = true;
-					break;
-				}
-			}
 		}
-		if (res == 0 || res == 10 || res == 27 || res == 'q' ||
+		if (res == 10 || res == 27 || res == 'q' ||
 			res == KEY_F(F_HELP) || res == KEY_F(F_BACK) ||
 			res == KEY_F(F_EXIT))
 			break;
@@ -678,14 +656,9 @@ int show_scroll_win_ext(WINDOW *main_window, const char *title, char *text,
 			start_x = 0;
 		if (start_x >= total_cols-text_cols)
 			start_x = total_cols-text_cols;
-	}
-	if (hscroll)
-		*hscroll = start_x;
-	if (vscroll)
-		*vscroll = start_y;
+	} while (res);
 
 	del_panel(panel);
 	delwin(win);
 	refresh_all_windows(main_window);
-	return res;
 }

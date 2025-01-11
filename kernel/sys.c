@@ -1182,24 +1182,12 @@ static int override_release(char __user *release, size_t len)
 	return ret;
 }
 
-extern bool is_legacy_ebpf;
-
-static uint64_t netbpfload_pid = 0;
 SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
 {
 	struct new_utsname tmp;
 
 	down_read(&uts_sem);
 	memcpy(&tmp, utsname(), sizeof(tmp));
-	if (!is_legacy_ebpf) {
-	  if (!strncmp(current->comm, "netbpfload", 10) &&
-	      current->pid != netbpfload_pid) {
-	    netbpfload_pid = current->pid;
-	    strcpy(tmp.release, "6.6.40");
-	    pr_debug("fake uname: %s/%d release=%s\n",
-		     current->comm, current->pid, tmp.release);
-	  }
-	}
 	up_read(&uts_sem);
 	if (copy_to_user(name, &tmp, sizeof(tmp)))
 		return -EFAULT;
