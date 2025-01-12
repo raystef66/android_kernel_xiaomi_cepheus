@@ -3,6 +3,29 @@
 #include <linux/init.h>
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+#ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
+#include <asm/setup.h>
+#endif
+
+#ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
+#define INITRAMFS_STR_FIND "skip_initramf"
+#define INITRAMFS_STR_REPLACE "want_initramf"
+#define INITRAMFS_STR_LEN (sizeof(INITRAMFS_STR_FIND) - 1)
+
+#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+extern int susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
+#endif
+
+static char proc_command_line[COMMAND_LINE_SIZE];
+
+static void proc_command_line_init(void) {
+	char *offset_addr;
+
+	strcpy(proc_command_line, saved_command_line);
+
+	offset_addr = strstr(proc_command_line, INITRAMFS_STR_FIND);
+	if (!offset_addr)
+		return;
 
 #ifdef KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
 extern int susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
@@ -10,12 +33,17 @@ extern int susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
 
 static int cmdline_proc_show(struct seq_file *m, void *v)
 {
-
-#ifdef KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+#ifdef CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
 	if (!susfs_spoof_cmdline_or_bootconfig(m)) {
 		seq_putc(m, '\n');
 		return 0;
 	}
+#endif
+
+#ifdef CONFIG_INITRAMFS_IGNORE_SKIP_FLAG
+	seq_printf(m, "%s\n", proc_command_line);
+#else
+	seq_printf(m, "%s\n", saved_command_line);
 #endif
 	
 	seq_printf(m, "%s\n", saved_command_line);
